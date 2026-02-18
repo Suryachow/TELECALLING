@@ -1,0 +1,242 @@
+### Test Payments Collection Endpoints (Step-wise Payment Data)
+### These endpoints handle payment step data stored separately from step_cache
+
+### Base URL
+@baseUrl = http://localhost:8000/authapp
+@session_id = payment-session-123
+@phone = 1234567890
+@txnid = TXN123456789
+
+### ==============================================
+### 1. Submit Payment Step (via StepCacheView)
+### This will automatically store in payments collection
+### ==============================================
+POST {{baseUrl}}/step/payment/
+Content-Type: application/json
+
+{
+  "session_id": "{{session_id}}",
+  "user_id": "user123",
+  "data": {
+    "phone": "{{phone}}",
+    "email": "test@example.com",
+    "paymentAmount": 5000.0,
+    "paymentCurrency": "INR",
+    "paymentMethod": "UPI",
+    "transactionId": "{{txnid}}",
+    "paymentStatus": "pending"
+  }
+}
+
+### ==============================================
+### 2. Get All Payment Records
+### ==============================================
+GET {{baseUrl}}/payments/
+Content-Type: application/json
+
+### ==============================================
+### 3. Get Payments with Pagination
+### ==============================================
+GET {{baseUrl}}/payments/?page=1&limit=20
+Content-Type: application/json
+
+### ==============================================
+### 4. Filter by Session ID
+### ==============================================
+GET {{baseUrl}}/payments/?session_id={{session_id}}
+Content-Type: application/json
+
+### ==============================================
+### 5. Filter by User ID
+### ==============================================
+GET {{baseUrl}}/payments/?user_id=user123
+Content-Type: application/json
+
+### ==============================================
+### 6. Filter by Phone Number
+### ==============================================
+GET {{baseUrl}}/payments/?phone={{phone}}
+Content-Type: application/json
+
+### ==============================================
+### 7. Filter by Transaction ID
+### ==============================================
+GET {{baseUrl}}/payments/?transactionId={{txnid}}
+Content-Type: application/json
+
+### ==============================================
+### 8. Filter by Verification Status
+### ==============================================
+GET {{baseUrl}}/payments/?verification_status=verified
+Content-Type: application/json
+
+### Alternative verification statuses:
+# verification_status=not_verified
+# verification_status=not_found_in_gateway
+# verification_status=verification_failed
+
+### ==============================================
+### 9. Filter by Gateway Verification (Boolean)
+### ==============================================
+GET {{baseUrl}}/payments/?gateway_verified=true
+Content-Type: application/json
+
+### Alternative: Get unverified payments
+GET {{baseUrl}}/payments/?gateway_verified=false
+Content-Type: application/json
+
+### ==============================================
+### 10. Filter by Status
+### ==============================================
+GET {{baseUrl}}/payments/?status=pending
+Content-Type: application/json
+
+### Alternative: completed payments
+GET {{baseUrl}}/payments/?status=completed
+Content-Type: application/json
+
+### ==============================================
+### 11. Combined Filters with Pagination
+### ==============================================
+GET {{baseUrl}}/payments/?status=pending&gateway_verified=false&page=1&limit=10
+Content-Type: application/json
+
+### ==============================================
+### 12. Manually Trigger Payment Verification
+### ==============================================
+POST {{baseUrl}}/payments/verify/
+Content-Type: application/json
+
+{
+  "session_id": "{{session_id}}"
+}
+
+### ==============================================
+### 13. Delete Payment Record
+### ==============================================
+DELETE {{baseUrl}}/payments/?session_id={{session_id}}
+Content-Type: application/json
+
+### ==============================================
+### Expected Response Structure for POST /step/payment/
+### ==============================================
+# {
+#   "success": true,
+#   "message": "payment stored in payments collection",
+#   "session_id": "payment-session-123",
+#   "payment_verification": {
+#     "verified": true,
+#     "status": "verified",
+#     "gateway_data": {
+#       "status": "success",
+#       "amount": 5000.0,
+#       "bank_ref_no": "BANK123",
+#       "mode": "UPI",
+#       "bank_name": "State Bank"
+#     }
+#   }
+# }
+
+### ==============================================
+### Expected Response Structure for GET /payments/
+### ==============================================
+# {
+#   "records": [
+#     {
+#       "_id": "507f1f77bcf86cd799439011",
+#       "session_id": "payment-session-123",
+#       "user_id": "user123",
+#       "payment_data": {
+#         "phone": "1234567890",
+#         "email": "test@example.com",
+#         "paymentAmount": 5000.0,
+#         "paymentCurrency": "INR",
+#         "paymentMethod": "UPI",
+#         "transactionId": "TXN123456789",
+#         "paymentStatus": "pending"
+#       },
+#       "gateway_verified": true,
+#       "gateway_data": {
+#         "status": "success",
+#         "amount": 5000.0,
+#         "bank_ref_no": "BANK123",
+#         "mode": "UPI",
+#         "bank_name": "State Bank"
+#       },
+#       "verification_status": "verified",
+#       "status": "pending",
+#       "created_at": "2026-02-08T10:30:00",
+#       "last_updated": "2026-02-08T10:35:00"
+#     }
+#   ],
+#   "pagination": {
+#     "total_count": 50,
+#     "page": 1,
+#     "limit": 50,
+#     "total_pages": 1
+#   },
+#   "statistics": {
+#     "verified_count": 35,
+#     "unverified_count": 15,
+#     "pending_count": 40,
+#     "completed_count": 10
+#   }
+# }
+
+### ==============================================
+### Expected Response for POST /payments/verify/
+### ==============================================
+# {
+#   "message": "Payment verification completed",
+#   "verification_result": {
+#     "verified": true,
+#     "status": "verified",
+#     "gateway_data": {
+#       "status": "success",
+#       "amount": 5000.0,
+#       "bank_ref_no": "BANK123",
+#       "mode": "UPI",
+#       "bank_name": "State Bank",
+#       "addedon": "2026-02-08 10:30:00"
+#     }
+#   }
+# }
+
+### ==============================================
+### WORKFLOW NOTES
+### ==============================================
+# 1. When submitting payment step via /step/payment/:
+#    - Data stored in 'payments' collection (not step_cache)
+#    - Automatically verifies with payment_gateway_data if txnid and phone present
+#    - Returns verification result immediately
+#
+# 2. Other steps (personal, educational, etc.):
+#    - Continue to be stored in 'step_cache' collection as before
+#
+# 3. Payment step data structure:
+#    - session_id: Unique session identifier
+#    - user_id: User identifier (optional)
+#    - payment_data: Nested payment information
+#    - gateway_verified: Boolean verification flag
+#    - gateway_data: Gateway transaction details
+#    - verification_status: Status of verification
+#    - status: Payment status (pending, completed)
+#
+# 4. Verification process:
+#    - Matches transaction ID (txnid) from payment_data
+#    - Matches phone number (handles string and numeric)
+#    - Updates verification status automatically
+#
+# 5. Use GET /payments/ to:
+#    - Query all payment step records
+#    - Filter by session, user, phone, txnid, verification status
+#    - Get statistics on verifications and statuses
+#
+# 6. Use POST /payments/verify/ to:
+#    - Manually re-verify a payment
+#    - Force verification update
+#    - Check gateway status again
+#
+# 7. Use DELETE /payments/ to:
+#    - Remove a payment record by session_id
+#    - Clean up test data

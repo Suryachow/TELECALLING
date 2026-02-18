@@ -1,0 +1,83 @@
+### Student Status Check Tests
+
+# Check application status by email
+POST http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "phone": "9876543210"
+}
+
+###
+POST http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+{
+  "email": "test1@gmail.com",
+  "phone": "9876543210"
+}
+
+###
+
+# Check application status by student ID
+POST http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+{
+  "student_id": "507f1f77bcf86cd799439011"
+}
+
+###
+
+# Check application status with both email and student ID
+POST http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "student_id": "507f1f77bcf86cd799439011"
+}
+
+###
+
+# Check application status by phone
+POST https://api.screenova.tech/api/student/status/
+Content-Type: application/json
+
+{
+  "phone": "8978083533"
+}
+
+###
+
+# Get applications summary (all submitted applications)
+GET http://127.0.0.1:8000/api/student/status/
+
+###
+
+# Test with non-existent email
+POST http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com"
+}
+
+###
+
+# Test with invalid student ID
+POST http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+{
+  "student_id": "invalid_id"
+}
+
+###
+
+# Test with missing parameters (should fail)
+POST http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+{}

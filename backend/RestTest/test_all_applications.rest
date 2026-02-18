@@ -1,0 +1,103 @@
+### All Applications Details Tests
+
+GET http://127.0.0.1:8000/api/register/details/
+
+###
+
+GET http://127.0.0.1:8000/api/applications/?email=test0@gmail.com
+
+###
+# Get all applications (approved, rejected, pending)
+GET http://127.0.0.1:8000/api/applications/
+
+###
+
+# Get only approved applications
+GET http://127.0.0.1:8000/api/applications/?status=approved
+
+###
+
+# Get only rejected applications
+GET http://127.0.0.1:8000/api/applications/?status=rejected
+
+###
+
+# Get only pending applications
+GET http://127.0.0.1:8000/api/applications/?status=pending
+
+###
+
+# Advanced filtering with POST method - Filter by status and category
+POST http://127.0.0.1:8000/api/applications/
+Content-Type: application/json
+
+{
+  "filters": {
+    "status": "approved",
+    "category": "General"
+  }
+}
+
+###
+
+# Filter by date range
+POST http://127.0.0.1:8000/api/applications/
+Content-Type: application/json
+
+{
+  "filters": {
+    "date_from": "2025-07-01T00:00:00",
+    "date_to": "2025-07-31T23:59:59"
+  }
+}
+
+###
+
+# Filter by state and board
+POST http://127.0.0.1:8000/api/applications/
+Content-Type: application/json
+
+{
+  "filters": {
+    "state": "Maharashtra",
+    "board": "CBSE"
+  }
+}
+
+###
+
+# Multiple filters combined
+POST http://127.0.0.1:8000/api/applications/
+Content-Type: application/json
+
+{
+  "filters": {
+    "status": "pending",
+    "category": "General",
+    "state": "Maharashtra",
+    "board": "CBSE",
+    "date_from": "2025-07-20T00:00:00"
+  }
+}
+
+###
+
+# Filter only rejected applications with remarks
+POST http://127.0.0.1:8000/api/applications/
+Content-Type: application/json
+
+{
+  "filters": {
+    "status": "rejected"
+  }
+}
+
+###
+
+# Get all applications with no filters
+POST http://127.0.0.1:8000/api/applications/
+Content-Type: application/json
+
+{
+  "filters": {}
+}

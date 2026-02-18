@@ -1,0 +1,463 @@
+openapi: 3.0.3
+info:
+  title: Payment Record API
+  description: |
+    API for managing payment records in the admissions system.
+    
+    This API allows you to:
+    - Create payment records
+    - Query payment records with filters
+    - Verify payments with payment gateway
+    - Manage payment data in both `payments` and `step_cache` collections
+    
+    **Gateway Verification**: When both `phone` and `transactionId` are provided, 
+    the system automatically attempts to verify the payment with the payment gateway data.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+  - url: https://your-deployment-url.com/api
+    description: Production server
+
+tags:
+  - name: Payment Records
+    description: Operations for managing payment records
+
+paths:
+  /payments/record/:
+    post:
+      tags:
+        - Payment Records
+      summary: Create a new payment record
+      description: |
+        Creates a new payment record in the `payments` collection and mirrors it to `step_cache`.
+        
+        **Features:**
+        - Auto-generates `session_id` if not provided
+        - Stores payment data in both `payments` and `step_cache` collections
+        - Optionally verifies payment with gateway if `phone` and `transactionId` are provided
+        - Returns verification status if gateway check is performed
+      operationId: createPaymentRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRecordRequest'
+            examples:
+              complete:
+                summary: Complete payment record
+                value:
+                  amount: 1200
+                  paymentAmount: 1200
+                  paymentMethod: "UPI"
+                  transactionId: "TXN1769524284417PD1E7O"
+                  paymentStatus: "completed"
+                  paymentDate: "2026-01-27 20:01:25"
+                  discountApplied: 0
+                  couponCode: ""
+                  applicationStatus: "payment_completed"
+                  session_id: "pending-8297551666"
+                  user_id: "8297551666"
+                  phone: "8297551666"
+              minimal:
+                summary: Minimal payment record
+                value:
+                  paymentAmount: 1500
+                  paymentMethod: "Card"
+                  transactionId: "TXN987654321"
+                  phone: "9876543210"
+              with_discount:
+                summary: Payment with discount
+                value:
+                  amount: 3000
+                  paymentAmount: 2500
+                  paymentMethod: "UPI"
+                  transactionId: "TXN777888999"
+                  paymentStatus: "completed"
+                  paymentDate: "2026-02-09"
+                  discountApplied: 500
+                  couponCode: "FIRSTTIME500"
+                  applicationStatus: "confirmed"
+                  session_id: "discount-session-001"
+                  user_id: "user-002"
+                  phone: "9123456789"
+      responses:
+        '201':
+          description: Payment record created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecordResponse'
+              examples:
+                success:
+                  value:
+                    success: true
+                    message: "Payment record stored"
+                    session_id: "pending-8297551666"
+                    mongodb_id: "507f1f77bcf86cd799439011"
+                success_with_verification:
+                  value:
+                    success: true
+                    message: "Payment record stored"
+                    session_id: "pending-8297551666"
+                    mongodb_id: "507f1f77bcf86cd799439011"
+                    payment_verification:
+                      verified: true
+                      status: "verified"
+                      gateway_data:
+                        status: "success"
+                        amount: 1200
+                        bank_ref_no: "BANK123456"
+                        mode: "UPI"
+                        bank_name: "HDFC Bank"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  value:
+                    success: false
+                    message: "Validation failed"
+                    errors:
+                      paymentStatus: ["\"invalid_status\" is not a valid choice."]
+
+  /payments/:
+    get:
+      tags:
+        - Payment Records
+      summary: Get payment records
+      description: |
+        Retrieves payment records from the `payments` collection with optional filtering and pagination.
+        
+        **Available Filters:**
+        - `session_id` - Filter by session ID
+        - `user_id` - Filter by user ID
+        - `phone` - Filter by phone number
+        - `transactionId` - Filter by transaction ID
+        - `status` - Filter by payment status (pending, completed)
+        - `verification_status` - Filter by verification status
+        - `gateway_verified` - Filter by gateway verification (true/false)
+        
+        **Pagination:**
+        - `page` - Page number (default: 1)
+        - `limit` - Records per page (default: 50)
+      operationId: getPaymentRecords
+      parameters:
+        - name: session_id
+          in: query
+          schema:
+            type: string
+          description: Filter by session ID
+        - name: user_id
+          in: query
+          schema:
+            type: string
+          description: Filter by user ID
+        - name: phone
+          in: query
+          schema:
+            type: string
+          description: Filter by phone number
+        - name: transactionId
+          in: query
+          schema:
+            type: string
+          description: Filter by transaction ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, completed]
+          description: Filter by payment status
+        - name: verification_status
+          in: query
+          schema:
+            type: string
+            enum: [verified, not_verified, not_found_in_gateway, verification_failed]
+          description: Filter by verification status
+        - name: gateway_verified
+          in: query
+          schema:
+            type: boolean
+          description: Filter by gateway verification status
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+          description: Records per page
+      responses:
+        '200':
+          description: Payment records retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecordsListResponse'
+
+  /payments/verify/:
+    post:
+      tags:
+        - Payment Records
+      summary: Verify payment with gateway
+      description: |
+        Manually triggers payment verification with the payment gateway for a specific session.
+        
+        **Requirements:**
+        - Payment record must exist with the provided `session_id`
+        - Payment record must have both `phone` and `transactionId`
+        - Gateway data must be available in `payment_gateway_data` collection
+      operationId: verifyPaymentRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - session_id
+              properties:
+                session_id:
+                  type: string
+                  description: Session ID of the payment to verify
+            example:
+              session_id: "pending-8297551666"
+      responses:
+        '200':
+          description: Verification completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  verification_result:
+                    $ref: '#/components/schemas/VerificationResult'
+        '400':
+          description: Missing session_id
+        '404':
+          description: Payment record not found
+
+  /payments/:
+    delete:
+      tags:
+        - Payment Records
+      summary: Delete payment record
+      description: Deletes a payment record by session ID
+      operationId: deletePaymentRecord
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Session ID of the payment to delete
+      responses:
+        '200':
+          description: Payment record deleted successfully
+        '404':
+          description: Payment record not found
+
+components:
+  schemas:
+    PaymentRecordRequest:
+      type: object
+      properties:
+        session_id:
+          type: string
+          description: Session ID (auto-generated if not provided)
+          example: "pending-8297551666"
+        user_id:
+          type: string
+          description: User ID
+          example: "8297551666"
+        phone:
+          type: string
+          pattern: '^[0-9]{10}$'
+          description: 10-digit phone number (used for gateway verification)
+          example: "8297551666"
+        amount:
+          type: number
+          format: decimal
+          minimum: 0
+          default: 0
+          description: Original amount before discount
+          example: 1200
+        paymentAmount:
+          type: number
+          format: decimal
+          minimum: 0
+          default: 0
+          description: Final payment amount after discount
+          example: 1200
+        paymentMethod:
+          type: string
+          description: Payment method used
+          enum: [UPI, Card, Net Banking, Wallet, Cash, Cheque]
+          example: "UPI"
+        transactionId:
+          type: string
+          description: Transaction ID from payment gateway
+          example: "TXN1769524284417PD1E7O"
+        paymentStatus:
+          type: string
+          enum: [pending, completed, failed]
+          default: pending
+          description: Current status of the payment
+          example: "completed"
+        paymentDate:
+          type: string
+          description: Payment date and time
+          example: "2026-01-27 20:01:25"
+        discountApplied:
+          type: number
+          format: decimal
+          minimum: 0
+          default: 0
+          description: Discount amount applied
+          example: 0
+        couponCode:
+          type: string
+          description: Coupon code used (if any)
+          example: "SAVE100"
+        applicationStatus:
+          type: string
+          description: Overall application status
+          example: "payment_completed"
+        txnid:
+          type: string
+          description: Alternative field for transaction ID (if transactionId not provided)
+          example: "TXNID456789"
+
+    PaymentRecordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Payment record stored"
+        session_id:
+          type: string
+          example: "pending-8297551666"
+        mongodb_id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        payment_verification:
+          $ref: '#/components/schemas/VerificationResult'
+
+    VerificationResult:
+      type: object
+      properties:
+        verified:
+          type: boolean
+          description: Whether payment was verified with gateway
+          example: true
+        status:
+          type: string
+          enum: [verified, not_verified, not_found_in_gateway, verification_failed]
+          example: "verified"
+        gateway_data:
+          type: object
+          description: Data from payment gateway (only if verified)
+          properties:
+            status:
+              type: string
+              example: "success"
+            amount:
+              type: number
+              example: 1200
+            bank_ref_no:
+              type: string
+              example: "BANK123456"
+            mode:
+              type: string
+              example: "UPI"
+            bank_name:
+              type: string
+              example: "HDFC Bank"
+
+    PaymentRecordsListResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              session_id:
+                type: string
+              user_id:
+                type: string
+              payment_data:
+                type: object
+              status:
+                type: string
+              gateway_verified:
+                type: boolean
+              verification_status:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+              last_updated:
+                type: string
+                format: date-time
+        pagination:
+          type: object
+          properties:
+            total_count:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            total_pages:
+              type: integer
+        statistics:
+          type: object
+          properties:
+            verified_count:
+              type: integer
+            unverified_count:
+              type: integer
+            pending_count:
+              type: integer
+            completed_count:
+              type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Validation failed"
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string

@@ -1,0 +1,379 @@
+# Pre-Test REST API Tests for Admissions Backend
+# Base URL: http://127.0.0.1:8000
+# All endpoints under /api/ prefix
+
+
+### for getting specific step data
+GET http://127.0.0.1:8000/api/step/cache/?phone=8978083533&current=payment
+
+###
+GET http://127.0.0.1:8000/api/step/cache/
+
+### Clear Step Cache
+DELETE http://127.0.0.1:8000/api/step/clear/?phone=8978083533
+
+
+### 1. Test CORS Endpoint
+GET http://127.0.0.1:8000/test/
+
+### 2. User Registration
+POST http://127.0.0.1:8000/api/register/
+Content-Type: application/json
+
+{
+    "name": "SRINIVASA CHARI",
+    "email": "211fa04389@gmail.com",
+    "phone": "8978083533",
+    "campus": "Guntur",
+    "program": "btech",
+    "specialization": "cse",
+    "password": "admin@123",
+    "confirmPassword": "admin@123"
+}
+
+### 2a. Get User Registration Details
+GET http://127.0.0.1:8000/api/register/details/?phone=9876543210
+
+###
+# 2a. UG Student Registration (with file uploads)
+POST http://127.0.0.1:8000/api/ug/student/
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="firstName"
+
+Alice
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="lastName"
+
+Johnson
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="email"
+
+testuser@example.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="phone"
+
+9876543210
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="dob"
+
+2002-08-10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="gender"
+
+Female
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+SC
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="schoolName"
+
+XYZ Public School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="board"
+
+CBSE
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="percentage"
+
+91.2
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="passingYear"
+
+2020
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="rollNumber"
+
+67890
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="street"
+
+123 Main St
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="city"
+
+Metropolis
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="state"
+
+StateName
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="pincode"
+
+123456
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="country"
+
+CountryName
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+
+
+### 3. User Login
+POST http://127.0.0.1:8000/api/login/
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "testpass123"
+}
+
+### 4. Send OTP
+POST http://127.0.0.1:8000/api/send-otp/
+Content-Type: application/json
+
+{
+  "phone": "9876543210"
+}
+
+### 5. Verify OTP
+POST http://127.0.0.1:8000/api/verify-otp/
+Content-Type: application/json
+
+{
+  "phone": "9876543210",
+  "otp": "123456"
+}
+
+### 6. OTP Base Login
+POST http://127.0.0.1:8000/api/otpbase-login/
+Content-Type: application/json
+
+{
+  "phone": "9876543210",
+  "otp": "123456"
+}
+
+### 7. Student Application Submission (Regular)
+POST http://127.0.0.1:8000/api/student/
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="firstName"
+
+John
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="lastName"
+
+Doe
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="email"
+
+john.doe@example.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="phone"
+
+9876543210
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="dob"
+
+1995-05-15
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="gender"
+
+Male
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+General
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="schoolName"
+
+ABC High School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="board"
+
+CBSE
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="percentage"
+
+85.5
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="passingYear"
+
+2013
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="rollNumber"
+
+12345
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="course"
+
+Computer Science Engineering
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 8. UG Student Application Submission
+POST http://127.0.0.1:8000/api/ug/student/
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="firstName"
+
+Jane
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="lastName"
+
+Smith
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="email"
+
+jane.smith@example.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="phone"
+
+9876543211
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="dob"
+
+2000-03-20
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="gender"
+
+Female
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+OBC
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="course"
+
+Bachelor of Technology - Computer Science
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 9. Get Student Status
+GET http://127.0.0.1:8000/api/student/status/
+Content-Type: application/json
+
+### 10. Get Student Status with Phone (Query Parameter)
+GET http://127.0.0.1:8000/api/student/status/?phone=9876543210
+
+### 11. Get All Applications (Admin)
+GET http://127.0.0.1:8000/api/applications/
+Content-Type: application/json
+
+### 12. Get Student Approval Status
+GET http://127.0.0.1:8000/api/student/approval/
+Content-Type: application/json
+
+### 13. Get Specific Student Approval by ID
+GET http://127.0.0.1:8000/api/student/approval/STU123456/
+Content-Type: application/json
+
+### 14. Update Student Approval Status
+PUT http://127.0.0.1:8000/api/student/approval/STU123456/
+Content-Type: application/json
+
+{
+  "status": "approved",
+  "remarks": "Application approved successfully"
+}
+
+### 15. Step Cache - Save Step Data
+POST http://127.0.0.1:8000/api/step/personal/
+Content-Type: application/json
+
+{
+  "phone": "9876543210",
+  "data": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "dob": "1995-05-15"
+  }
+}
+
+### 16. Step Cache - Get Step Data
+GET http://127.0.0.1:8000/api/step/personal/?phone=9876543210
+
+### 17. Step Cache - Education Step
+POST http://127.0.0.1:8000/api/step/education/
+Content-Type: application/json
+
+{
+  "phone": "9876543210",
+  "data": {
+    "schoolName": "ABC High School",
+    "board": "CBSE",
+    "percentage": "85.5",
+    "passingYear": "2013"
+  }
+}
+
+### 18. Step Cache - Course Step
+POST http://127.0.0.1:8000/api/step/course/
+Content-Type: application/json
+
+{
+  "phone": "9876543210",
+  "data": {
+    "course": "Computer Science Engineering",
+    "preference": "1"
+  }
+}
+
+### 19. Step Submit - Final Submission
+POST http://127.0.0.1:8000/api/step/submit/
+Content-Type: application/json
+
+{
+  "phone": "9876543210"
+}
+
+### 20. File View - Get Student File
+GET http://127.0.0.1:8000/api/file/9876543210/profile_photo.jpg
+
+### 21. File View - Get Document
+GET http://127.0.0.1:8000/api/file/9876543210/marksheet.pdf
+
+### 22. Test Step Cache with Different Step Names
+POST http://127.0.0.1:8000/api/step/documents/
+Content-Type: application/json
+
+{
+  "phone": "9876543210",
+  "data": {
+    "hasProfilePhoto": true,
+    "hasMarksheet": true,
+    "hasIdProof": true
+  }
+}
+
+### 23. Get Documents Step Data
+GET http://127.0.0.1:8000/api/step/documents/?phone=9876543210
+
+### 24. Test Invalid OTP
+POST http://127.0.0.1:8000/api/verify-otp/
+Content-Type: application/json
+
+{
+  "phone": "9876543210",
+  "otp": "000000"
+}
+
+### 25. Test Registration with Existing Email
+POST http://127.0.0.1:8000/api/register/
+Content-Type: application/json
+
+{
+  "name": "Duplicate User",
+  "email": "testuser@example.com",
+  "password": "testpass123",
+  "confirmPassword": "testpass123",
+  "phone": "9876543211"
+}
+
+### 26. Test Login with Wrong Credentials
+POST http://127.0.0.1:8000/api/login/
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "wrongpassword"
+}
+
+### 27. Test Student Status for Non-existent Phone
+GET http://127.0.0.1:8000/api/student/status/?phone=0000000000
+
+### 28. Test File Access for Non-existent File
+GET http://127.0.0.1:8000/api/file/9876543210/nonexistent.pdf

@@ -1,0 +1,56 @@
+### Student Approval/Rejection Tests
+
+# Approve a student
+POST http://127.0.0.1:8000/api/student/approval/
+Content-Type: application/json
+
+{
+  "student_id": "687fc0f01548c293f27edf69",
+  "isApproved": true,
+  "remarks": "All documents verified and approved"
+}
+
+###
+
+# Reject a student
+POST http://127.0.0.1:8000/api/student/approval/
+Content-Type: application/json
+
+{
+  "student_id": "507f1f77bcf86cd799439011",
+  "isApproved": false,
+  "remarks": "Incomplete documents - missing marksheet12"
+}
+
+###
+
+# Approve without remarks
+POST http://127.0.0.1:8000/api/student/approval/
+Content-Type: application/json
+
+{
+  "student_id": "688073c5ced6431f60f0ef05",
+  "isApproved": true
+}
+
+###
+
+# Get specific student approval status
+GET http://127.0.0.1:8000/api/student/approval/687fc0f01548c293f27edf69/
+
+###
+
+# Get all students approval status
+GET http://127.0.0.1:8000/api/student/approval/
+
+###
+
+# Invalid student ID test
+POST http://127.0.0.1:8000/api/student/approval/
+Content-Type: application/json
+
+{
+  "student_id": "invalid_id",
+  "isApproved": true,
+  "remarks": "This should fail"
+}

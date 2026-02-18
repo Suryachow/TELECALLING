@@ -1,0 +1,247 @@
+### Test Single Payment Record Insert
+# Base URL
+@baseUrl = http://localhost:8000/api
+# @baseUrl = https://your-deployment-url.com/api
+
+### 1. Insert Payment Record - All fields
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "amount": 1200,
+  "paymentAmount": 1200,
+  "paymentMethod": "UPI",
+  "transactionId": "TXN1769524284417PD1E7O",
+  "paymentStatus": "completed",
+  "paymentDate": "2026-01-27 20:01:25",
+  "discountApplied": 0,
+  "couponCode": "",
+  "applicationStatus": "payment_completed",
+  "session_id": "pending-8297551666",
+  "user_id": "8297551666",
+  "phone": "8297551666"
+}
+
+### 2. Insert Payment Record - Minimal fields (defaults applied)
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "transactionId": "TXN987654321",
+  "paymentMethod": "Card",
+  "paymentAmount": 1500,
+  "phone": "9876543210"
+}
+
+### 3. Insert Payment Record - Pending status
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "paymentAmount": 2000,
+  "paymentMethod": "Net Banking",
+  "transactionId": "TXN111222333",
+  "paymentStatus": "pending",
+  "paymentDate": "2026-02-09",
+  "session_id": "pending-session-001",
+  "phone": "9876543210"
+}
+
+### 4. Insert Payment Record - Failed status
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "paymentAmount": 500,
+  "paymentMethod": "UPI",
+  "transactionId": "TXN444555666",
+  "paymentStatus": "failed",
+  "paymentDate": "2026-02-09",
+  "applicationStatus": "payment_failed",
+  "phone": "9876543210"
+}
+
+### 5. Insert Payment Record - With discount & coupon
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "amount": 3000,
+  "paymentAmount": 2500,
+  "paymentMethod": "UPI",
+  "transactionId": "TXN777888999",
+  "paymentStatus": "completed",
+  "paymentDate": "2026-02-09",
+  "discountApplied": 500,
+  "couponCode": "FIRSTTIME500",
+  "applicationStatus": "confirmed",
+  "session_id": "discount-session-001",
+  "user_id": "user-002",
+  "phone": "9123456789"
+}
+
+### 6. Insert Payment Record - Without phone (no gateway verification)
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "paymentAmount": 1200,
+  "paymentMethod": "Wallet",
+  "transactionId": "TXN123123123",
+  "paymentStatus": "completed",
+  "paymentDate": "2026-02-09",
+  "session_id": "no-phone-session"
+}
+
+### 7. Insert Payment Record - Using txnid instead of transactionId
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "paymentAmount": 1800,
+  "paymentMethod": "UPI",
+  "paymentStatus": "completed",
+  "paymentDate": "2026-02-09",
+  "phone": "9998887776",
+  "txnid": "TXNID456789"
+}
+
+### 8. Get All Payment Records (from payments collection)
+GET {{baseUrl}}/payments/?page=1&limit=50
+
+### 9. Get Payment Records - Filter by phone
+GET {{baseUrl}}/payments/?phone=9876543210
+
+### 10. Get Payment Records - Filter by status
+GET {{baseUrl}}/payments/?status=completed
+
+### 11. Get Payment Records - Filter by verification status
+GET {{baseUrl}}/payments/?verification_status=verified
+
+### 12. Get Payment Records - Filter by gateway verified
+GET {{baseUrl}}/payments/?gateway_verified=true
+
+### 13. Get Payment Records - Filter by session_id
+GET {{baseUrl}}/payments/?session_id=test-session-001
+
+### 14. Get Payment Records - Filter by transaction ID
+GET {{baseUrl}}/payments/?transactionId=TXN123456789
+
+### 15. Verify Payment Record with Gateway (manual trigger)
+POST {{baseUrl}}/payments/verify/
+Content-Type: application/json
+
+{
+  "session_id": "test-session-001"
+}
+
+### 16. Get Step Cache Data - Check if payment stored in step_cache
+GET {{baseUrl}}/step/cache/
+
+### 17. Get Step Cache Data - Filter by phone
+GET {{baseUrl}}/step/last-completed/?phone=9876543210
+
+### 18. Delete Payment Record
+DELETE {{baseUrl}}/payments/?session_id=test-session-001
+
+### 19. Validation Error Test - Missing required payment status choice
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "paymentAmount": 1000,
+  "paymentMethod": "UPI",
+  "transactionId": "TXN000000",
+  "paymentStatus": "invalid_status"
+}
+
+### 20. Get Payment Statistics
+GET {{baseUrl}}/payments/?page=1&limit=10
+
+###############################################
+# Combined Workflow Test
+###############################################
+
+### Step 1: Create payment record with gateway verification
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "paymentAmount": 2500,
+  "paymentMethod": "UPI",
+  "transactionId": "TXN_WORKFLOW_001",
+  "paymentStatus": "completed",
+  "paymentDate": "2026-02-09",
+  "discountApplied": 250,
+  "couponCode": "WORKFLOW10",
+  "applicationStatus": "submitted",
+  "session_id": "workflow-session-001",
+  "user_id": "workflow-user-001",
+  "phone": "9999888877"
+}
+
+### Step 2: Retrieve the payment record
+GET {{baseUrl}}/payments/?session_id=workflow-session-001
+
+### Step 3: Check step_cache for payment data
+GET {{baseUrl}}/step/cache/
+
+### Step 4: Manually trigger gateway verification
+POST {{baseUrl}}/payments/verify/
+Content-Type: application/json
+
+{
+  "session_id": "workflow-session-001"
+}
+
+### Step 5: Get updated payment record with verification
+GET {{baseUrl}}/payments/?session_id=workflow-session-001&gateway_verified=true
+
+###############################################
+# Test with actual payment gateway data
+# (Replace with actual transaction ID from payment_gateway_data collection)
+###############################################
+
+### Test Gateway Verification - Use real transaction ID
+POST {{baseUrl}}/payments/record/
+Content-Type: application/json
+
+{
+  "paymentAmount": 1000,
+  "paymentMethod": "UPI",
+  "transactionId": "REPLACE_WITH_REAL_TXNID",
+  "paymentStatus": "pending",
+  "paymentDate": "2026-02-09",
+  "session_id": "gateway-test-session",
+  "phone": "REPLACE_WITH_REAL_PHONE"
+}
+
+### Then verify
+POST {{baseUrl}}/payments/verify/
+Content-Type: application/json
+
+{
+  "session_id": "gateway-test-session"
+}
+
+###############################################
+# Query Examples
+###############################################
+
+### Get all pending payments
+GET {{baseUrl}}/payments/?status=pending&page=1&limit=20
+
+### Get all completed payments
+GET {{baseUrl}}/payments/?status=completed&page=1&limit=20
+
+### Get all verified payments
+GET {{baseUrl}}/payments/?gateway_verified=true&page=1&limit=20
+
+### Get all unverified payments
+GET {{baseUrl}}/payments/?gateway_verified=false&page=1&limit=20
+
+### Get payments by user_id
+GET {{baseUrl}}/payments/?user_id=user-001
+
+### Get payment by specific transaction ID
+GET {{baseUrl}}/payments/?transactionId=TXN123456789

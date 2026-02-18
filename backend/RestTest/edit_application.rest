@@ -1,0 +1,10 @@
+@host = http://localhost:8000/api
+
+### Edit Application
+PUT {{host}}/application/edit/6902fbf81c57ac3100fe5c6b/
+Content-Type: application/json
+
+{
+  "firstName": "VENKATESH",
+  "lastName": "UpdatedLast"
+}

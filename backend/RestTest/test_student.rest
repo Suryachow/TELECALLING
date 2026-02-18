@@ -1,0 +1,128 @@
+POST http://127.0.0.1:8000/api/student/
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="firstName"
+
+John
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="lastName"
+
+Doe
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="email"
+
+john.doe@example.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="phone"
+
+9876543210
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="dob"
+
+1995-05-15
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="gender"
+
+Male
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+General
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="schoolName"
+
+ABC High School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="board"
+
+CBSE
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="percentage"
+
+85.5
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="passingYear"
+
+2013
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="rollNumber"
+
+12345678
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="street"
+
+123 Main Street
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="city"
+
+Mumbai
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="state"
+
+Maharashtra
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="pincode"
+
+400001
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="country"
+
+India
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="isApproved"
+
+false
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="marksheet10"; filename="marksheet10.pdf"
+Content-Type: application/pdf
+
+(binary content would go here)
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="marksheet12"; filename="marksheet12.pdf"
+Content-Type: application/pdf
+
+(binary content would go here)
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="photo.jpg"
+Content-Type: image/jpeg
+
+(binary content would go here)
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="signature"; filename="signature.png"
+Content-Type: image/png
+
+(binary content would go here)
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="categoryCert"; filename="category.pdf"
+Content-Type: application/pdf
+
+(binary content would go here)
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+# Alternative JSON test (without files for basic testing)
+POST http://127.0.0.1:8000/api/student/
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "9876543210",
+  "dob": "1995-05-15",
+  "gender": "Male",
+  "category": "General",
+  "schoolName": "ABC High School",
+  "board": "CBSE",
+  "percentage": "85.5",
+  "passingYear": "2013",
+  "rollNumber": "12345678",
+  "street": "123 Main Street",
+  "city": "Mumbai",
+  "state": "Maharashtra",
+  "pincode": "400001",
+  "country": "India",
+  "isApproved": false
+}

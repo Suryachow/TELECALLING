@@ -1,0 +1,209 @@
+### Test Users Payments Collection Endpoints
+### These endpoints handle payment records stored separately with gateway verification
+
+### Base URL
+@baseUrl = http://localhost:8000/authapp
+@email = test@example.com
+@phone = 1234567890
+@txnid = TXN123456789
+@student_id = 507f1f77bcf86cd799439011
+
+### ==============================================
+### 1. Get All Users Payment Records (with pagination)
+### ==============================================
+GET {{baseUrl}}/users-payments/
+Content-Type: application/json
+
+### ==============================================
+### 2. Get Users Payments with Pagination
+### ==============================================
+GET {{baseUrl}}/users-payments/?page=1&limit=20
+Content-Type: application/json
+
+### ==============================================
+### 3. Filter by Student ID
+### ==============================================
+GET {{baseUrl}}/users-payments/?student_id={{student_id}}
+Content-Type: application/json
+
+### ==============================================
+### 4. Filter by Email
+### ==============================================
+GET {{baseUrl}}/users-payments/?email={{email}}
+Content-Type: application/json
+
+### ==============================================
+### 5. Filter by Phone Number
+### ==============================================
+GET {{baseUrl}}/users-payments/?phone={{phone}}
+Content-Type: application/json
+
+### ==============================================
+### 6. Filter by Transaction ID
+### ==============================================
+GET {{baseUrl}}/users-payments/?transactionId={{txnid}}
+Content-Type: application/json
+
+### ==============================================
+### 7. Filter by Payment Status
+### ==============================================
+GET {{baseUrl}}/users-payments/?paymentStatus=completed
+Content-Type: application/json
+
+### Alternative: Get pending payments
+GET {{baseUrl}}/users-payments/?paymentStatus=pending
+Content-Type: application/json
+
+### ==============================================
+### 8. Filter by Verification Status
+### ==============================================
+GET {{baseUrl}}/users-payments/?verification_status=verified
+Content-Type: application/json
+
+### Alternative verification statuses:
+# verification_status=not_verified
+# verification_status=not_found_in_gateway
+# verification_status=verification_failed
+
+### ==============================================
+### 9. Filter by Gateway Verification (Boolean)
+### ==============================================
+GET {{baseUrl}}/users-payments/?gateway_verified=true
+Content-Type: application/json
+
+### Alternative: Get unverified payments
+GET {{baseUrl}}/users-payments/?gateway_verified=false
+Content-Type: application/json
+
+### ==============================================
+### 10. Combined Filters with Pagination
+### ==============================================
+GET {{baseUrl}}/users-payments/?paymentStatus=completed&gateway_verified=true&page=1&limit=10
+Content-Type: application/json
+
+### ==============================================
+### 11. Manually Trigger Payment Verification by Student ID
+### ==============================================
+POST {{baseUrl}}/users-payments/verify/
+Content-Type: application/json
+
+{
+  "student_id": "{{student_id}}"
+}
+
+### ==============================================
+### 12. Manually Trigger Payment Verification by Transaction ID
+### ==============================================
+POST {{baseUrl}}/users-payments/verify/
+Content-Type: application/json
+
+{
+  "transactionId": "{{txnid}}"
+}
+
+### ==============================================
+### 13. Get All Payments Details (Original endpoint with verification)
+### This now stores records in users_payments and cross-verifies
+### ==============================================
+GET {{baseUrl}}/applications/payments/
+Content-Type: application/json
+
+### ==============================================
+### Expected Response Structure for GET /users-payments/
+### ==============================================
+# {
+#   "records": [
+#     {
+#       "_id": "507f1f77bcf86cd799439011",
+#       "student_id": "507f191e810c19729de860ea",
+#       "generated_student_id": "VU26GNT000001",
+#       "name": "John Doe",
+#       "email": "john@example.com",
+#       "phone": "1234567890",
+#       "payment_details": {
+#         "paymentAmount": 5000.0,
+#         "paymentCurrency": "INR",
+#         "paymentMethod": "UPI",
+#         "transactionId": "TXN123456789",
+#         "paymentStatus": "completed",
+#         "paymentDate": "2026-02-08T10:30:00",
+#         "discountApplied": 0.0,
+#         "couponCode": "",
+#         "applicationStatus": "submitted"
+#       },
+#       "gateway_verified": true,
+#       "gateway_data": {
+#         "status": "success",
+#         "amount": 5000.0,
+#         "bank_ref_no": "BANK123",
+#         "mode": "UPI",
+#         "bank_name": "State Bank",
+#         "addedon": "2026-02-08 10:30:00",
+#         "txnid": "TXN123456789"
+#       },
+#       "verification_status": "verified",
+#       "created_at": "2026-02-08T10:35:00",
+#       "last_updated": "2026-02-08T10:35:00"
+#     }
+#   ],
+#   "pagination": {
+#     "total_count": 150,
+#     "page": 1,
+#     "limit": 50,
+#     "total_pages": 3
+#   },
+#   "statistics": {
+#     "verified_count": 120,
+#     "unverified_count": 30,
+#     "completed_payments": 140,
+#     "pending_payments": 10
+#   }
+# }
+
+### ==============================================
+### Expected Response for POST /users-payments/verify/
+### ==============================================
+# {
+#   "message": "Payment verification completed",
+#   "verification_result": {
+#     "verified": true,
+#     "status": "verified",
+#     "gateway_data": {
+#       "status": "success",
+#       "amount": 5000.0,
+#       "bank_ref_no": "BANK123",
+#       "mode": "UPI",
+#       "bank_name": "State Bank",
+#       "addedon": "2026-02-08 10:30:00",
+#       "txnid": "TXN123456789"
+#     }
+#   }
+# }
+
+### ==============================================
+### WORKFLOW NOTES
+### ==============================================
+# 1. When a student submits an application with payment info:
+#    - Data is stored in 'students' collection
+#    - Automatically stored in 'users_payments' collection
+#    - Cross-verified with 'payment_gateway_data' using txnid and phone
+#
+# 2. The verification process:
+#    - Matches transaction ID (txnid) exactly
+#    - Matches phone number (handles string and numeric formats)
+#    - Updates verification status and stores gateway data
+#
+# 3. Payment statuses:
+#    - pending: Payment not yet completed
+#    - completed/success: Payment successful
+#
+# 4. Verification statuses:
+#    - verified: Found and matched in payment gateway
+#    - not_verified: Not yet checked
+#    - not_found_in_gateway: Not found in gateway data
+#    - verification_failed: Error during verification
+#
+# 5. Use the POST /users-payments/verify/ endpoint to:
+#    - Re-verify a specific payment
+#    - Force verification update
+#    - Check gateway status again
