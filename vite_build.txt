@@ -1,0 +1,75 @@
+﻿[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+node.exe : node:internal/pro
+cess/promises:394
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (node:  
+  internal/process/promis   
+ es:394:String) [], Remo    
+teException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+    triggerUncaughtException
+(err, true /* fromPromise 
+*/);
+    ^
+
+[Failed to load PostCSS 
+config: Failed to load 
+PostCSS config (searchPath: 
+V:/TELECALLING/TELECALLING):
+ [ReferenceError] module is 
+not defined in ES module 
+scope
+This file is being treated 
+as an ES module because it 
+has a '.js' file extension 
+and 'V:\TELECALLING\TELECALL
+ING\package.json' contains 
+"type": "module". To treat 
+it as a CommonJS script, 
+rename it to use the '.cjs' 
+file extension.
+ReferenceError: module is 
+not defined in ES module 
+scope
+This file is being treated 
+as an ES module because it 
+has a '.js' file extension 
+and 'V:\TELECALLING\TELECALL
+ING\package.json' contains 
+"type": "module". To treat 
+it as a CommonJS script, 
+rename it to use the '.cjs' 
+file extension.
+    at file:///V:/TELECALLIN
+G/TELECALLING/postcss.config
+.js:2:1
+    at ModuleJob.run (node:i
+nternal/modules/esm/module_j
+ob:413:25)
+    at async onImport.traceP
+romise.__proto__ (node:inter
+nal/modules/esm/loader:660:2
+6)
+    at async importDefault (
+file:///V:/TELECALLING/TELEC
+ALLING/node_modules/vite/dis
+t/node/chunks/dep-BK3b2jBa.j
+s:33759:18)
+    at async Object.search (
+file:///V:/TELECALLING/TELEC
+ALLING/node_modules/vite/dis
+t/node/chunks/dep-BK3b2jBa.j
+s:25915:23)]
+
+Node.js v24.13.0

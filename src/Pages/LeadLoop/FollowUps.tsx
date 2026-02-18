@@ -1,96 +1,210 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Filter, RefreshCw, Phone, Mail, MessageCircle, Eye } from 'lucide-react';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { usersApi } from '@/lib/api';
-import type { User } from './LeadGeneration';
-import { cn } from '@/lib/utils';
+import { Calendar, Filter, RefreshCw, Phone, Mail, MessageCircle, Eye } from 'lucide-react';
 
-interface FollowUp extends User {
-  nextFollowUp?: string;   // ISO date
-  priority?: 'high' | 'medium' | 'low';
-  status?: 'due' | 'overdue' | 'scheduled';
+interface FollowUp {
+  name: string;
+  email: string;
+  phone: string;
+  program: string;
+  campus: string;
+  nextFollowUp: string;
+  priority: 'high' | 'medium' | 'low';
+  status: 'due' | 'overdue' | 'scheduled';
 }
 
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+const MOCK_FOLLOWUPS: FollowUp[] = [
+  {
+    name: 'Perusomula Srinivasa Chari',
+    email: '211fa04389@gmail.com',
+    phone: '8978083533',
+    program: 'BTECH',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-17',
+    priority: 'high',
+    status: 'due',
+  },
+  {
+    name: 'Mokkapati Chaitanya',
+    email: 'chaitanyamokkapati0@gmail.com',
+    phone: '6281487836',
+    program: 'PHD',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-18',
+    priority: 'medium',
+    status: 'overdue',
+  },
+  {
+    name: 'Tripuraneni Gireesh',
+    email: 'tripuranenigireesh642@gmail.com',
+    phone: '7989943008',
+    program: 'BTECH',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-19',
+    priority: 'low',
+    status: 'scheduled',
+  },
+  {
+    name: 'Komma Harish',
+    email: 'k.bhaskar0001@gmail.com',
+    phone: '8096688016',
+    program: 'BTECH',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-20',
+    priority: 'high',
+    status: 'due',
+  },
+  {
+    name: 'Srinivasa Chari',
+    email: '211FA04389@vignan.ac.in',
+    phone: '9553147457',
+    program: 'PHD',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-21',
+    priority: 'medium',
+    status: 'overdue',
+  },
+  {
+    name: 'Koganti Susanth Sai',
+    email: 'kogantimahitha@gmail.com',
+    phone: '7989241130',
+    program: 'BTECH',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-17',
+    priority: 'low',
+    status: 'scheduled',
+  },
+  {
+    name: 'Kagithala Sangeetha',
+    email: 'sangeethak0707@gmail.com',
+    phone: '8639246457',
+    program: 'PHD',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-18',
+    priority: 'high',
+    status: 'due',
+  },
+  {
+    name: 'Chintakunta Sirivalli',
+    email: 'srivalliraothanneeru@gmail.com',
+    phone: '9392567055',
+    program: 'BTECH',
+    campus: 'Hyderabad',
+    nextFollowUp: '2026-02-19',
+    priority: 'medium',
+    status: 'overdue',
+  },
+  {
+    name: 'Rajesh Kumar Patel',
+    email: 'rajeshkumar.patel@gmail.com',
+    phone: '9876543210',
+    program: 'MBA',
+    campus: 'Hyderabad',
+    nextFollowUp: '2026-02-22',
+    priority: 'high',
+    status: 'scheduled',
+  },
+  {
+    name: 'Anitha Reddy',
+    email: 'anitha.reddy@outlook.com',
+    phone: '9123456780',
+    program: 'MTECH',
+    campus: 'Vijayawada',
+    nextFollowUp: '2026-02-16',
+    priority: 'medium',
+    status: 'overdue',
+  },
+  {
+    name: 'Venkata Suresh Babu',
+    email: 'vsuresh.babu@gmail.com',
+    phone: '8012345678',
+    program: 'BTECH',
+    campus: 'Vijayawada',
+    nextFollowUp: '2026-02-23',
+    priority: 'low',
+    status: 'scheduled',
+  },
+  {
+    name: 'Lakshmi Prasanna',
+    email: 'lakshmi.prasanna@gmail.com',
+    phone: '7654321098',
+    program: 'PHD',
+    campus: 'Guntur',
+    nextFollowUp: '2026-02-18',
+    priority: 'high',
+    status: 'due',
+  },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const priorityClass = (p: string) => {
+  if (p === 'high') return 'priority-pill priority-pill--high';
+  if (p === 'medium') return 'priority-pill priority-pill--medium';
+  if (p === 'low') return 'priority-pill priority-pill--low';
+  return 'priority-pill priority-pill--default';
+};
+
+const statusClass = (s: string) => {
+  if (s === 'overdue') return 'badge badge--overdue';
+  if (s === 'due') return 'badge badge--due';
+  if (s === 'scheduled') return 'badge badge--scheduled';
+  return 'badge';
+};
+
+const fmtDate = (iso: string) => {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+};
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function FollowUpsPage() {
   const navigate = useNavigate();
-  const [items, setItems] = useState<FollowUp[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<'all' | 'due' | 'overdue' | 'scheduled'>('all');
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await usersApi.getAll();
-      const users: User[] = res.data.users || [];
-      // naive mock enrichment
-      const enriched = users.map((u, i) => ({
-        ...u,
-        nextFollowUp: new Date(Date.now() + (i % 5 - 1) * 24 * 3600 * 1000).toISOString(),
-        priority: (['high', 'medium', 'low'][i % 3] as FollowUp['priority']),
-        status: (['due', 'overdue', 'scheduled'][i % 3] as FollowUp['status']),
-      }));
-      setItems(enriched);
-    } catch (e) {
-      console.error('Follow-ups fetch failed', e);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'due' | 'overdue' | 'scheduled'>('all');
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return items.filter((it) => {
-      const matchesSearch =
+    return MOCK_FOLLOWUPS.filter((it) => {
+      const matchSearch =
         it.name.toLowerCase().includes(q) ||
         it.email.toLowerCase().includes(q) ||
         it.phone.includes(q) ||
-        (it.program || '').toLowerCase().includes(q);
-      const matchesStatus = status === 'all' || it.status === status;
-      return matchesSearch && matchesStatus;
+        it.program.toLowerCase().includes(q);
+      const matchStatus = statusFilter === 'all' || it.status === statusFilter;
+      return matchSearch && matchStatus;
     });
-  }, [items, search, status]);
-
-  const pill = (p?: string, fallback = 'N/A') => (
-    <span className="px-2 py-1 rounded-full text-xs bg-muted text-muted-foreground">
-      {p ? p.toUpperCase() : fallback}
-    </span>
-  );
+  }, [search, statusFilter]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Follow-ups"
-        subtitle="Track and act on pending follow-up calls/messages"
-        actions={
-          <Button variant="outline" size="sm" onClick={fetchData}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-        }
-      />
+    <div>
+      {/* Page Header */}
+      <div className="page-header">
+        <div>
+          <h1 className="page-header__title">Follow-ups</h1>
+          <p className="page-header__subtitle">Track and act on pending follow-up calls/messages</p>
+        </div>
+        <button className="refresh-btn">
+          <RefreshCw size={14} />
+          Refresh
+        </button>
+      </div>
 
-      <div className="flex flex-wrap gap-3 items-center">
-        <Input
+      {/* Filter Bar */}
+      <div className="followups-filter-bar">
+        <input
+          type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, email, phone, program"
-          className="w-72"
+          className="followups-search"
         />
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Filter className="w-4 h-4" />
+        <div className="followups-filter-group">
+          <Filter size={14} />
           <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as any)}
-            className="border rounded-lg px-3 py-2 bg-background text-sm"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="followups-select"
           >
             <option value="all">All</option>
             <option value="due">Due</option>
@@ -100,65 +214,71 @@ export default function FollowUpsPage() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl">
-        <div className="grid grid-cols-12 px-4 py-3 text-sm font-medium text-muted-foreground">
-          <span className="col-span-3">Student</span>
-          <span className="col-span-2">Email</span>
-          <span className="col-span-2">Phone</span>
-          <span className="col-span-2">Next Follow-up</span>
-          <span className="col-span-1">Priority</span>
-          <span className="col-span-2">Actions</span>
+      {/* Table */}
+      <div className="followups-table-wrap">
+        {/* Header */}
+        <div className="followups-table-header">
+          <span>Student</span>
+          <span>Email</span>
+          <span>Phone</span>
+          <span>Next Follow-up</span>
+          <span>Priority</span>
+          <span>Actions</span>
         </div>
-        <div className="divide-y">
-          {loading ? (
-            <div className="px-4 py-6 text-sm text-muted-foreground">Loading…</div>
-          ) : filtered.length === 0 ? (
-            <div className="px-4 py-6 text-sm text-muted-foreground">No follow-ups found.</div>
-          ) : (
-            filtered.map((u) => (
-              <div key={u.phone} className="grid grid-cols-12 px-4 py-3 items-center text-sm">
-                <div className="col-span-3">
-                  <div className="font-semibold">{u.name}</div>
-                  <div className="text-muted-foreground text-xs">{u.program?.toUpperCase() || 'N/A'}</div>
-                  <div className="text-muted-foreground text-xs">{u.campus}</div>
-                </div>
-                <span className="col-span-2">{u.email}</span>
-                <span className="col-span-2">{u.phone}</span>
-                <div className="col-span-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  {u.nextFollowUp
-                    ? new Date(u.nextFollowUp).toLocaleDateString()
-                    : 'N/A'}
-                  <span
-                    className={cn(
-                      'text-xs px-2 py-0.5 rounded-full',
-                      u.status === 'overdue' && 'bg-red-100 text-red-800',
-                      u.status === 'due' && 'bg-yellow-100 text-yellow-800',
-                      u.status === 'scheduled' && 'bg-blue-100 text-blue-800'
-                    )}
-                  >
-                    {u.status ? u.status.toUpperCase() : 'N/A'}
-                  </span>
-                </div>
-                <span className="col-span-1">{pill(u.priority)}</span>
-                <div className="col-span-2 flex gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => navigate(`/admin/tele/call/${u.phone}`)}>
-                    <Phone className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => navigate(`/admin/tele/email/${u.phone}`)}>
-                    <Mail className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => navigate(`/admin/tele/message/${u.phone}`)}>
-                    <MessageCircle className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => navigate(`/admin/tele/view/${u.phone}`)}>
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </div>
+
+        {/* Rows */}
+        {filtered.length === 0 ? (
+          <div style={{ padding: '24px 16px', fontSize: 13, color: '#6b7280', textAlign: 'center' }}>
+            No follow-ups match your search.
+          </div>
+        ) : (
+          filtered.map((u) => (
+            <div key={u.phone} className="followups-table-row">
+              {/* Student */}
+              <div>
+                <div className="followups-student-name">{u.name}</div>
+                <div className="followups-student-program">{u.program}</div>
+                <div className="followups-student-campus">{u.campus}</div>
               </div>
-            ))
-          )}
-        </div>
+
+              {/* Email */}
+              <span className="followups-email" title={u.email}>{u.email}</span>
+
+              {/* Phone */}
+              <span className="followups-phone">{u.phone}</span>
+
+              {/* Next Follow-up */}
+              <div className="followups-date-cell">
+                <Calendar size={14} className="followups-date-icon" />
+                <span className="followups-date-text">{fmtDate(u.nextFollowUp)}</span>
+                <span className={statusClass(u.status)}>{u.status.toUpperCase()}</span>
+              </div>
+
+              {/* Priority */}
+              <span className={priorityClass(u.priority)}>{u.priority.toUpperCase()}</span>
+
+              {/* Actions */}
+              <div className="followups-actions">
+                <button className="action-btn" title="Call"
+                  onClick={() => navigate(`/admin/tele/call/${u.phone}`)}>
+                  <Phone size={14} />
+                </button>
+                <button className="action-btn" title="Email"
+                  onClick={() => navigate(`/admin/tele/email/${u.phone}`)}>
+                  <Mail size={14} />
+                </button>
+                <button className="action-btn" title="Message"
+                  onClick={() => navigate(`/admin/tele/message/${u.phone}`)}>
+                  <MessageCircle size={14} />
+                </button>
+                <button className="action-btn" title="View"
+                  onClick={() => navigate(`/admin/tele/view/${u.phone}`)}>
+                  <Eye size={14} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

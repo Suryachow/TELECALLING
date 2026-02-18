@@ -1,0 +1,51 @@
+﻿src/App.tsx(2,62): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/components/Telecalling/CallMonitoring.tsx(2,37): error TS2307: Cannot find module 'react-chartjs-2' or its corresponding type declarations.
+src/components/Telecalling/CallMonitoring.tsx(14,8): error TS2307: Cannot find module 'chart.js' or its corresponding type declarations.
+src/components/Telecalling/LeadManagementTelecalling.tsx(3,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+src/components/Telecalling/Message.tsx(2,42): error TS2307: Cannot find module 'react-chartjs-2' or its corresponding type declarations.
+src/components/Telecalling/Message.tsx(14,8): error TS2307: Cannot find module 'chart.js' or its corresponding type declarations.
+src/components/Telecalling/Message.tsx(37,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+src/components/Telecalling/TeleCallingManagement.tsx(2,37): error TS2307: Cannot find module 'react-chartjs-2' or its corresponding type declarations.
+src/components/Telecalling/TeleCallingManagement.tsx(3,137): error TS2307: Cannot find module 'chart.js' or its corresponding type declarations.
+src/components/ui/DataTable.tsx(15,33): error TS6133: 'TValue' is declared but its value is never read.
+src/lib/api.ts(5,21): error TS6133: 'leadId' is declared but its value is never read.
+src/Pages/LeadLoop/BulkCommunications.tsx(2,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/BulkCommunications.tsx(6,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/BulkCommunications.tsx(6,20): error TS2305: Module '"@/lib/api"' has no exported member 'whatsappMessageApi'.
+src/Pages/LeadLoop/CallLogs.tsx(2,10): error TS6133: 'Phone' is declared but its value is never read.
+src/Pages/LeadLoop/CallLogs.tsx(2,17): error TS6133: 'Clock' is declared but its value is never read.
+src/Pages/LeadLoop/CallPage.tsx(2,40): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/CallPage.tsx(6,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/EmailPage.tsx(2,40): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/EmailPage.tsx(3,10): error TS6133: 'Mail' is declared but its value is never read.
+src/Pages/LeadLoop/EmailPage.tsx(6,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/FollowUps.tsx(2,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/FollowUps.tsx(3,20): error TS6133: 'Clock' is declared but its value is never read.
+src/Pages/LeadLoop/FollowUps.tsx(7,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/LeadAuditor.tsx(7,1): error TS6133: 'usersApi' is declared but its value is never read.
+src/Pages/LeadLoop/LeadAuditor.tsx(7,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/LeadAuditor.tsx(258,16): error TS6133: 'log' is declared but its value is never read.
+src/Pages/LeadLoop/LeadGeneration.tsx(2,21): error TS6133: 'Download' is declared but its value is never read.
+src/Pages/LeadLoop/LeadGeneration.tsx(6,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/LeadGeneration.tsx(6,20): error TS2305: Module '"@/lib/api"' has no exported member 'studentApplicationStatusApi'.
+src/Pages/LeadLoop/LeadGeneration.tsx(6,49): error TS2305: Module '"@/lib/api"' has no exported member 'stepCacheApi'.
+src/Pages/LeadLoop/LeadGeneration.tsx(7,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/LeadGeneration.tsx(107,31): error TS7006: Parameter 'user' implicitly has an 'any' type.
+src/Pages/LeadLoop/LeadGeneration.tsx(336,9): error TS2322: Type '{ data: User[]; columns: ({ key: string; label: string; sortable: boolean; render: (_: User) => number; filterable?: undefined; filterType?: undefined; exportable?: undefined; } | { key: string; ... 5 more ...; exportable?: undefined; } | { ...; } | { ...; } | { ...; } | { ...; })[]; ... 4 more ...; getRowUrl: (row:...' is not assignable to type 'IntrinsicAttributes & DataTableProps<User, unknown>'.
+  Property 'getRowUrl' does not exist on type 'IntrinsicAttributes & DataTableProps<User, unknown>'.
+src/Pages/LeadLoop/LeadGeneration.tsx(336,21): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/Pages/LeadLoop/LeadsDashboard.tsx(2,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/MessagePage.tsx(2,40): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/MessagePage.tsx(6,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/MessagePage.tsx(6,20): error TS2305: Module '"@/lib/api"' has no exported member 'whatsappMessageApi'.
+src/Pages/LeadLoop/TelecallingDashboard.tsx(101,10): error TS6133: 'callLogs' is declared but its value is never read.
+src/Pages/LeadLoop/TelecallingDashboard.tsx(231,9): error TS6133: 'calculateStats' is declared but its value is never read.
+src/Pages/LeadLoop/TelecallingDashboard.tsx(458,29): error TS2551: Property 'stats' does not exist on type 'Agent'. Did you mean 'status'?
+src/Pages/LeadLoop/TelecallingDashboard.tsx(464,41): error TS2551: Property 'stats' does not exist on type 'Agent'. Did you mean 'status'?
+src/Pages/LeadLoop/TelecallingDashboard.tsx(470,29): error TS2551: Property 'stats' does not exist on type 'Agent'. Did you mean 'status'?
+src/Pages/LeadLoop/TelecallingDashboard.tsx(476,29): error TS2551: Property 'stats' does not exist on type 'Agent'. Did you mean 'status'?
+src/Pages/LeadLoop/ViewPage.tsx(2,40): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/Pages/LeadLoop/ViewPage.tsx(6,10): error TS2305: Module '"@/lib/api"' has no exported member 'usersApi'.
+src/Pages/LeadLoop/ViewPage.tsx(6,20): error TS2305: Module '"@/lib/api"' has no exported member 'studentApplicationStatusApi'.
+src/Pages/LeadLoop/ViewPage.tsx(6,49): error TS2305: Module '"@/lib/api"' has no exported member 'stepCacheApi'.
+src/Pages/LeadLoop/ViewPage.tsx(6,63): error TS2305: Module '"@/lib/api"' has no exported member 'stepApi'.

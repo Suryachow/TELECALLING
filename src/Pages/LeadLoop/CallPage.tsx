@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Phone, ArrowLeft, Save, Clock, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { Phone, ArrowLeft, Save, Clock, BookOpen, ChevronDown, ChevronUp, CalendarClock } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Button } from '@/components/ui/button';
-import { usersApi } from '@/lib/api';
+import { usersApi, followUpsApi } from '@/lib/api';
 import { User } from './LeadGeneration';
 
 export default function TCallPage() {
@@ -16,6 +16,11 @@ export default function TCallPage() {
   const [callNotes, setCallNotes] = useState('');
   const [callOutcome, setCallOutcome] = useState('');
   const [expandedScript, setExpandedScript] = useState<number | null>(null);
+  const [followUpDate, setFollowUpDate] = useState('');
+  const [followUpPriority, setFollowUpPriority] = useState<'high' | 'medium' | 'low'>('medium');
+  const [savingCall, setSavingCall] = useState(false);
+
+  const needsFollowUp = callOutcome === 'follow_up' || callOutcome === 'callback';
 
   const callScripts = [
     {
@@ -92,16 +97,29 @@ export default function TCallPage() {
     setIsCallActive(false);
   };
 
-  const handleSaveCall = () => {
-    // TODO: Implement API call to save call details
-    console.log({
-      phone,
-      duration: callDuration,
-      notes: callNotes,
-      outcome: callOutcome,
-      timestamp: new Date().toISOString()
-    });
-    navigate('/admin/leads-all');
+  const handleSaveCall = async () => {
+    setSavingCall(true);
+    try {
+      // If follow-up is needed, create a real follow-up record
+      if (needsFollowUp && user) {
+        await followUpsApi.create({
+          phone: user.phone,
+          name: user.name,
+          email: user.email,
+          program: user.program ?? '',
+          campus: user.campus ?? '',
+          next_follow_up: followUpDate,
+          priority: followUpPriority,
+          status: 'scheduled',
+          notes: callNotes,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to save follow-up:', err);
+    } finally {
+      setSavingCall(false);
+      navigate('/admin/leads-all');
+    }
   };
 
   if (loading) {
@@ -165,7 +183,7 @@ export default function TCallPage() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue/10">
                 <Phone className={`w-10 h-10 ${isCallActive ? 'text-green-600' : 'text-blue'}`} />
               </div>
-              
+
               <div className="flex items-center justify-center gap-2 text-2xl font-bold">
                 <Clock className="w-6 h-6" />
                 {formatDuration(callDuration)}
@@ -253,14 +271,49 @@ export default function TCallPage() {
                   value={callNotes}
                   onChange={(e) => setCallNotes(e.target.value)}
                   placeholder="Enter your notes about the call..."
-                  rows={6}
+                  rows={4}
                   className="w-full border rounded-lg px-3 py-2 bg-background resize-none"
                 />
               </div>
 
-              <Button onClick={handleSaveCall} className="w-full" disabled={!callOutcome}>
+              {/* Follow-up scheduling — shown only when outcome needs it */}
+              {needsFollowUp && (
+                <div className="border border-blue-200 bg-blue-50 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-blue-700 font-semibold text-sm">
+                    <CalendarClock className="w-4 h-4" />
+                    Schedule Follow-up
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Follow-up Date</label>
+                      <input
+                        type="date"
+                        value={followUpDate}
+                        onChange={(e) => setFollowUpDate(e.target.value)}
+                        className="w-full border rounded-lg px-3 py-2 bg-white text-sm"
+                        min={new Date().toISOString().slice(0, 10)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Priority</label>
+                      <select
+                        value={followUpPriority}
+                        onChange={(e) => setFollowUpPriority(e.target.value as any)}
+                        className="w-full border rounded-lg px-3 py-2 bg-white text-sm"
+                      >
+                        <option value="high">🔴 High</option>
+                        <option value="medium">🟡 Medium</option>
+                        <option value="low">🟢 Low</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-600">This follow-up will appear on the Follow-ups page.</p>
+                </div>
+              )}
+
+              <Button onClick={handleSaveCall} className="w-full" disabled={!callOutcome || savingCall}>
                 <Save className="w-4 h-4 mr-2" />
-                Save Call Details
+                {savingCall ? 'Saving…' : needsFollowUp ? 'Save & Schedule Follow-up' : 'Save Call Details'}
               </Button>
             </div>
           </div>
